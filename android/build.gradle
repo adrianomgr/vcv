@@ -1,3 +1,6 @@
+group 'io.github.edufolly.fluttermobilevision'
+version '1.0-SNAPSHOT'
+
 buildscript {
     repositories {
         google()
@@ -5,25 +8,32 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
-allprojects {
+rootProject.allprojects {
     repositories {
         google()
         jcenter()
     }
 }
 
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+dependencies {
+    api 'com.android.support:design:27.1.1'
+    api 'com.google.android.gms:play-services-vision:15.0.0'
 }
