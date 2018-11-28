@@ -34,30 +34,11 @@ class _MyAppState extends State<MyApp> {
       home: new DefaultTabController(
         length: 3,
         child: new Scaffold(
-            appBar: new AppBar(
-              title: new Text('Vigilância Cidadã de Veículos'),
-            ),
-            body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Icon(Icons.linked_camera, size: 120.0, color: Colors.green),
-                  TextField(
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(labelText: "Placa do Veículo"),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 25.0),
-            // _getOcrScreen(context)
-                  ),
-                  Container(
-                    height:60.0,
-                    child: RaisedButton(
-                      onPressed: (  ) {},
-                      child: Text("CONSULTAR", style: TextStyle(color: Colors.white, fontSize: 25.0)),
-                    )
-                  )
-                  
-                ])
-            ),
+          appBar: new AppBar(
+            title: new Text('Vigilância Cidadã de Veículos'),
+          ),
+          body: _getOcrScreen(context),
+        ),
       ),
     );
   }
@@ -68,63 +49,38 @@ class _MyAppState extends State<MyApp> {
   Widget _getOcrScreen(BuildContext context) {
     List<Widget> items = [];
 
-    // items.add(new Padding(
-    //   padding: const EdgeInsets.only(
-    //     top: 8.0,
-    //     left: 18.0,
-    //     right: 18.0,
-    //   ),
-    //   child: const Text('Camera:'),
-    // ));
-
-    // items.add(new Padding(
-    //   padding: const EdgeInsets.only(
-    //     left: 18.0,
-    //     right: 18.0,
-    //   ),
-    //   child: new DropdownButton(
-    //     items: _getCameras(),
-    //     onChanged: (value) => setState(
-    //           () => _cameraOcr = value,
-    //         ),
-    //     value: _cameraOcr,
-    //   ),
-    // ));
-
-    // items.add(new SwitchListTile(
-    //   title: const Text('Auto focus:'),
-    //   value: _autoFocusOcr,
-    //   onChanged: (value) => setState(() => _autoFocusOcr = value),
-    // ));
-
-    // items.add(new SwitchListTile(
-    //   title: const Text('Torch:'),
-    //   value: _torchOcr,
-    //   onChanged: (value) => setState(() => _torchOcr = value),
-    // ));
-
-    // items.add(new SwitchListTile(
-    //   title: const Text('Multiple:'),
-    //   value: _multipleOcr,
-    //   onChanged: (value) => setState(() => _multipleOcr = value),
-    // ));
-
-    // items.add(new SwitchListTile(
-    //   title: const Text('Show text:'),
-    //   value: _showTextOcr,
-    //   onChanged: (value) => setState(() => _showTextOcr = value),
-    // ));
-
     items.add(
-      new Padding(
-        padding: const EdgeInsets.only(
-          left: 18.0,
-          right: 18.0,
-          bottom: 12.0,
-        ),
-        child: new RaisedButton(
-          onPressed: _read,
-          child: new Text('Câmera'),
+      new SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              child: IconButton(
+                  padding: EdgeInsets.only(bottom: 100.0),
+                  icon: Icon(Icons.linked_camera,
+                      size: 120.0, color: Colors.green),
+                  onPressed: _read),
+            ),
+            TextField(
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(labelText: "Placa do Veículo"),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 25.0),
+              // _getOcrScreen(context)
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Container(
+                height: 60.0,
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: Text("CONSULTAR",
+                      style: TextStyle(color: Colors.white, fontSize: 25.0)),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

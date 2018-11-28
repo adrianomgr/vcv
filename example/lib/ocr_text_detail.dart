@@ -25,7 +25,7 @@ class _OcrTextDetailState extends State<OcrTextDetail> {
           ),
           new ListTile(
             title: new Text(widget.ocrText.language),
-            subtitle: const Text('Language2'),
+            subtitle: const Text('Language'),
           ),
           new ListTile(
             title: new Text(widget.ocrText.top.toString()),
