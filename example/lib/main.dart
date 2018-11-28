@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   bool _multipleOcr = false;
   bool _showTextOcr = true;
   List<OcrText> _textsOcr = [];
-
+  var txt = new TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -63,18 +63,19 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _read),
             ),
             TextField(
+              controller: txt,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(labelText: "Placa do Veículo"),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 25.0),
-              // _getOcrScreen(context)
+              style: TextStyle(fontSize: 25.0, color: Colors.black),
             ),
             Padding(
               padding: EdgeInsets.only(top: 20.0),
               child: Container(
                 height: 60.0,
                 child: RaisedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                  },
                   child: Text("CONSULTAR",
                       style: TextStyle(color: Colors.white, fontSize: 25.0)),
                 ),
@@ -119,12 +120,15 @@ class _MyAppState extends State<MyApp> {
         fps: 2.0,
       );
     } on Exception {
-      texts.add(new OcrText('Failed to recognize text.'));
+      texts.add(new OcrText('Nenhuma Placa foi detectada.'));
     }
 
-    if (!mounted) return;
+    if (!mounted) return;    
+      setState(() {
+        _textsOcr = texts;
+        txt.text = texts.first.value;
 
-    setState(() => _textsOcr = texts);
+      });
   }
 }
 
