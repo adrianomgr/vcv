@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobile_vision/flutter_mobile_vision.dart';
-import 'package:flutter_mobile_vision_example/ocr_text_detail.dart';
+import 'package:flutter_mobile_vision_example/detalhes.dart';
 
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -40,43 +40,36 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
     _locationSubscription =
-        _location.onLocationChanged().listen((Map<String,double> result) {
-          setState(() {
-            _currentLocation = result;
-          });
-        });
+        _location.onLocationChanged().listen((Map<String, double> result) {
+      setState(() {
+        _currentLocation = result;
+      });
+    });
   }
+
   initPlatformState() async {
     Map<String, double> location;
-    // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
       _permission = await _location.hasPermission();
       location = await _location.getLocation();
-
 
       error = null;
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         error = 'Permission denied';
       } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error = 'Permission denied - please ask the user to enable it from the app settings';
+        error =
+            'Permission denied - please ask the user to enable it from the app settings';
       }
 
       location = null;
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    //if (!mounted) return;
-
     setState(() {
-        _startLocation = location;
+      _startLocation = location;
     });
-
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +78,12 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.green,
         buttonColor: Colors.green,
       ),
-      home: new DefaultTabController(
-        length: 3,
-        child: new Scaffold(
-          appBar: new AppBar(
-            title: new Text('Vigilância Cidadã de Veículos'),
-          ),
-          body: _getOcrScreen(context),
+      debugShowCheckedModeBanner: false,
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text('Vigilância Cidadã de Veículos'),
         ),
+        body: _getOcrScreen(context),
       ),
     );
   }
@@ -123,38 +114,25 @@ class _MyAppState extends State<MyApp> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 25.0, color: Colors.black),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: Container(
-                height: 60.0,
-                child: RaisedButton(
-                  onPressed: () {
-                  },
-                  child: Text("CONSULTAR",
-                      style: TextStyle(color: Colors.white, fontSize: 25.0)),
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
 
-    // items.addAll(
-    //   ListTile.divideTiles(
-    //     context: context,
-    //     tiles: _textsOcr
-    //         .map(
-    //           (ocrText) => new OcrTextWidget(ocrText),
-    //         )
-    //         .toList(),
-    //   ),
-    // );
+    items.addAll(
+      ListTile.divideTiles(
+        context: context,
+        tiles: _textsOcr
+            .map(
+              (ocrText) => new OcrTextWidget(ocrText),
+            )
+            .toList(),
+      ),
+    );
     items.add(new Center(
-        child: new Text(_startLocation != null
-            ? 'Start location: $_startLocation\n'
+        child: new Text(_currentLocation != null
+            ? 'Start location: $_currentLocation\n'
             : 'Error: $error\n')));
-            
 
     return new ListView(
       padding: const EdgeInsets.only(
@@ -179,15 +157,17 @@ class _MyAppState extends State<MyApp> {
         fps: 2.0,
       );
     } on Exception {
-      texts.add(new OcrText('Nenhuma Placa foi detectada.'));
+      texts.add(new OcrText(txt.text));
     }
-
-    if (!mounted) return;    
-      setState(() {
-        _textsOcr = texts;
-        txt.text = texts.first.value;
-
-      });
+      texts.first.latitude = _currentLocation["latitude"];
+      texts.first.longitude = _currentLocation["longitude"];
+      texts.first.isroubado = 1;
+      texts.first.modelo = "Punto";
+    if (!mounted) return;
+    setState(() {
+      _textsOcr = texts;
+      txt.text = texts.first.value;
+    });
   }
 }
 
@@ -201,16 +181,20 @@ class OcrTextWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListTile(
-      leading: const Icon(Icons.title),
-      title: new Text(ocrText.value),
-      subtitle: new Text(ocrText.language),
-      trailing: const Icon(Icons.arrow_forward),
-      onTap: () => Navigator.of(context).push(
-            new MaterialPageRoute(
-              builder: (context) => new OcrTextDetail(ocrText),
-            ),
-          ),
+    return new Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Container(
+        height: 60.0,
+        child: RaisedButton(
+          onPressed: () => Navigator.of(context).push(
+                new MaterialPageRoute(
+                  builder: (context) => new Detalhes(ocrText),
+                ),
+              ),
+          child: Text("CONSULTAR",
+              style: TextStyle(color: Colors.white, fontSize: 25.0)),
+        ),
+      ),
     );
   }
 }

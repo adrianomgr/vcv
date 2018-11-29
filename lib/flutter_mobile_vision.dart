@@ -47,6 +47,10 @@ class OcrText {
   final int bottom;
   final int left;
   final int right;
+  String modelo;
+  int isroubado;
+  double latitude;
+  double longitude;
 
   OcrText(
     this.value, {
@@ -55,6 +59,11 @@ class OcrText {
     this.bottom: -1,
     this.left: -1,
     this.right: -1,
+    this.modelo: 'Palio',
+    this.isroubado: 1,
+    this.latitude: 3.4,
+    this.longitude: 5.2,
+    
   });
 
   OcrText.fromMap(Map map)
@@ -63,7 +72,12 @@ class OcrText {
         top = map['top'],
         bottom = map['bottom'],
         left = map['left'],
-        right = map['right'];
+        right = map['right'],
+        modelo = map['modelo'],
+        isroubado = map['isroubado'],
+        latitude = map['latitude'],
+        longitude = map['longitude'];
+
 
   Map<String, dynamic> toMap() {
     return {
@@ -73,6 +87,12 @@ class OcrText {
       'bottom': bottom,
       'left': left,
       'right': right,
+      'modelo': modelo,
+      'isroubado': isroubado,
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 }
+
+
