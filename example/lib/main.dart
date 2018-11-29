@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobile_vision/flutter_mobile_vision.dart';
 import 'package:flutter_mobile_vision_example/ocr_text_detail.dart';
 
+import 'package:flutter/services.dart';
+import 'package:location/location.dart';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatefulWidget {
@@ -12,6 +15,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  Map<String, double> _startLocation;
+  Map<String, double> _currentLocation;
+
+  StreamSubscription<Map<String, double>> _locationSubscription;
+
+  Location _location = new Location();
+  bool _permission = false;
+  String error;
+  Image image1;
+
+  bool currentWidget = true;
+
   int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
   bool _autoFocusOcr = true;
   bool _torchOcr = false;
@@ -22,7 +37,46 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initPlatformState();
+
+    _locationSubscription =
+        _location.onLocationChanged().listen((Map<String,double> result) {
+          setState(() {
+            _currentLocation = result;
+          });
+        });
   }
+  initPlatformState() async {
+    Map<String, double> location;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+
+    try {
+      _permission = await _location.hasPermission();
+      location = await _location.getLocation();
+
+
+      error = null;
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Permission denied';
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        error = 'Permission denied - please ask the user to enable it from the app settings';
+      }
+
+      location = null;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    //if (!mounted) return;
+
+    setState(() {
+        _startLocation = location;
+    });
+
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +140,21 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
-    items.addAll(
-      ListTile.divideTiles(
-        context: context,
-        tiles: _textsOcr
-            .map(
-              (ocrText) => new OcrTextWidget(ocrText),
-            )
-            .toList(),
-      ),
-    );
+    // items.addAll(
+    //   ListTile.divideTiles(
+    //     context: context,
+    //     tiles: _textsOcr
+    //         .map(
+    //           (ocrText) => new OcrTextWidget(ocrText),
+    //         )
+    //         .toList(),
+    //   ),
+    // );
+    items.add(new Center(
+        child: new Text(_startLocation != null
+            ? 'Start location: $_startLocation\n'
+            : 'Error: $error\n')));
+            
 
     return new ListView(
       padding: const EdgeInsets.only(
