@@ -15,7 +15,7 @@ class _OcrTextDetailState extends State<OcrTextDetail> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Barcode Details'),
+        title: new Text('Detalhes do Veículo'),
       ),
       body: new ListView(
         children: <Widget>[
