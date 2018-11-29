@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.edufolly.fluttermobilevisionexample">
+    package="io.vcv.app">
 
     <!-- CAMERA permission -->
     <uses-feature android:name="android.hardware.camera" />
@@ -30,7 +30,7 @@
             android:value="barcode" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="io.vcv.app.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
@@ -49,9 +49,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="io.github.edufolly.fluttermobilevision.barcode.BarcodeCaptureActivity" />
-        <activity android:name="io.github.edufolly.fluttermobilevision.ocr.OcrCaptureActivity" />
-        <activity android:name="io.github.edufolly.fluttermobilevision.face.FaceCaptureActivity" />
+        <activity android:name="io.vcv.edufolly.fluttermobilevision.barcode.BarcodeCaptureActivity" />
+        <activity android:name="io.vcv.edufolly.fluttermobilevision.ocr.OcrCaptureActivity" />
+        <activity android:name="io.vcv.edufolly.fluttermobilevision.face.FaceCaptureActivity" />
 
     </application>
 </manifest>

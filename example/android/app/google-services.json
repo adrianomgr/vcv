@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "955224849714",
+    "firebase_url": "https://vigilancia-veiculos.firebaseio.com",
+    "project_id": "vigilancia-veiculos",
+    "storage_bucket": "vigilancia-veiculos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955224849714:android:236a2e71288e196b",
+        "android_client_info": {
+          "package_name": "io.vcv.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955224849714-9680heg246er574kq23916ub79vflqvk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD05GtD4YAIJGULRAFTdL58qoQhJFvZ78A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

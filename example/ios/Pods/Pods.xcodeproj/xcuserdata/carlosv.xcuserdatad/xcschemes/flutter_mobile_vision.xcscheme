@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1D41E7B7EADB9D394DDDECA405FC2D89"
+               BlueprintIdentifier = "1E39A25D994120E021AF6EB04361B7B2"
                BlueprintName = "flutter_mobile_vision"
                ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "libflutter_mobile_vision.a">
+               BuildableName = "flutter_mobile_vision.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
