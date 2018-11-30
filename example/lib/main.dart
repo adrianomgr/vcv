@@ -30,54 +30,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final CarDatabase carData = CarDatabase();
 
-  Map<String, double> _startLocation;
-  Map<String, double> _currentLocation;
-
-  StreamSubscription<Map<String, double>> _locationSubscription;
-
-  Location _location = new Location();
-  bool _permission = false;
-  String error;
-
-  bool currentWidget = true;
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-
-    _locationSubscription =
-        _location.onLocationChanged().listen((Map<String, double> result) {
-      setState(() {
-        _currentLocation = result;
-      });
-    });
-  }
-
-  initPlatformState() async {
-    Map<String, double> location;
-
-    try {
-      _permission = await _location.hasPermission();
-      location = await _location.getLocation();
-
-      error = null;
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        error = 'Permission denied';
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error =
-            'Permission denied - please ask the user to enable it from the app settings';
-      }
-
-      location = null;
-    }
-
-    setState(() {
-      _startLocation = location;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -121,6 +73,16 @@ class OcrScreen extends StatefulWidget {
 }
 
 class _OcrScreenState extends State<OcrScreen> {
+  Map<String, double> _startLocation;
+  Map<String, double> _currentLocation;
+
+  StreamSubscription<Map<String, double>> _locationSubscription;
+
+  Location _location = new Location();
+  bool _permission = false;
+  String error;
+
+  bool currentWidget = true;
   int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
   bool _autoFocusOcr = true;
   bool _torchOcr = false;
@@ -129,6 +91,43 @@ class _OcrScreenState extends State<OcrScreen> {
   List<OcrText> _textsOcr = [];
   Uint8List _image = null;
   final myController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+
+    _locationSubscription =
+        _location.onLocationChanged().listen((Map<String, double> result) {
+      setState(() {
+        _currentLocation = result;
+      });
+    });
+  }
+
+  initPlatformState() async {
+    Map<String, double> location;
+
+    try {
+      _permission = await _location.hasPermission();
+      location = await _location.getLocation();
+
+      error = null;
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Permission denied';
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        error =
+            'Permission denied - please ask the user to enable it from the app settings';
+      }
+
+      location = null;
+    }
+
+    setState(() {
+      _startLocation = location;
+    });
+  }
 
   @override
   void dispose() {
@@ -192,7 +191,7 @@ class _OcrScreenState extends State<OcrScreen> {
   }
 
   Future _plateStatus() async {
-    bool report = await showDialog<bool>(
+    Car report = await showDialog<Car>(
       context: context,
       builder: (context) {
         String plate = myController.text;
@@ -220,11 +219,11 @@ class _OcrScreenState extends State<OcrScreen> {
                     children: <Widget>[
                       _getCar(context, snapshot.data),
                       SimpleDialogOption(
-                        onPressed: () { Navigator.pop(context, true); },
+                        onPressed: () { Navigator.pop(context, snapshot.data); },
                         child: const Text('Denunciar'),
                       ),
                       SimpleDialogOption(
-                        onPressed: () { Navigator.pop(context, false); },
+                        onPressed: () { Navigator.pop(context, null); },
                         child: const Text('Cancelar'),
                       ),
                     ],
@@ -239,8 +238,14 @@ class _OcrScreenState extends State<OcrScreen> {
       },
     );
 
-    if (report != null && report) {
+    if (report != null) {
       print("Submit report");
+      Map<String, dynamic> reportMap;
+      reportMap.add("car", report.docID);
+      reportMap.add("location", _currentLocation);
+      reportMap.add("dateTime", new DateTime.now());
+      reportMap.add("image", "");
+      Firestore.instance.collection('sightings').add(reportMap);
     }
   }
 
@@ -314,12 +319,15 @@ class CarDatabase {
       var result = all_results.first;
       if (result != null && result.exists) {
         print(result.data['plate']);
-        return new Car.fromFireMap(result.data);
+        return new Car.fromFire(result.documentID, result.data);
       }
     }
-    
-    // todo: add plate to firebase
-    return this.sinespClient.search(plate);
+
+    var car = await this.sinespClient.search(plate);
+    var carDoc = await Firestore.instance.collection('cars')
+      .add(await car.toMap());
+    car.docID = await carDoc.documentID;
+    return car;
   }
 }
 
@@ -437,6 +445,7 @@ class Sinesp {
 }
 
 class Car {
+  String docID;
   String city;
   String state;
   String chassis;
@@ -449,7 +458,8 @@ class Car {
   String status;
 
   Car(
-      {this.city,
+      {this.docID,
+      this.city,
       this.state,
       this.chassis,
       this.brand,
@@ -460,7 +470,8 @@ class Car {
       this.statusCode,
       this.status});
 
-  Car.fromFireMap(Map<String, dynamic> map) {
+  Car.fromFire(String id, Map<String, dynamic> map) {
+    this.docID = id;
     this.city = map['city'];
     this.state = map['state'];
     this.chassis = map['chassis'];
@@ -471,6 +482,21 @@ class Car {
     this.plate = map['plate'];
     this.statusCode = map['statusCode'];
     this.status = map['status'];
+  }
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map;
+    map['city'] = this.city;
+    map['state'] = this.state;
+    map['chassis'] = this.chassis;
+    map['brand'] = this.brand;
+    map['model'] = this.model;
+    map['year'] = this.year;
+    map['color'] = this.color;
+    map['plate'] = this.plate;
+    map['statusCode'] = this.statusCode;
+    map['status'] = this.status;
+    return map;
   }
 }
 
