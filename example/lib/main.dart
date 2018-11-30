@@ -191,46 +191,57 @@ class _OcrScreenState extends State<OcrScreen> {
     );
   }
 
-  Future<bool> _plateStatus() {
-    return showDialog(
+  Future _plateStatus() async {
+    bool report = await showDialog<bool>(
       context: context,
       builder: (context) {
         String plate = myController.text;
-        return SimpleDialog(
-          children: <Widget>[
-            new FutureBuilder<Car>(
-              future: widget.sinespClient.search(plate),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return new Text('Loading....');
-                  default:
-                    if (snapshot.hasError)
-                      return new Text('Error: ${snapshot.error}');
-                    else if (snapshot.hasData)
-                      return _getCar(context, snapshot.data);
-                    else
-                      return new Text('Placa inválida: ${plate}');
-                }
-              },
-            ),
-             if (snapshot.data.status != 0)
-             return new SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              child: const Text('Denunciar'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-              child: const Text('Cancelar'),
-            ),
-          ],
+        return new FutureBuilder<Car>(
+          future: widget.sinespClient.search(plate),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return new SimpleDialog(
+                  children: <Widget>[Text('Loading....')],
+                );
+              default:
+                if (snapshot.hasError)
+                  return new SimpleDialog(
+                    children: <Widget>[Text('Error: ${snapshot.error}')],
+                  );
+                else if (snapshot.hasData && snapshot.data.status == 0)
+                  return new SimpleDialog(
+                    children: <Widget>[
+                      _getCar(context, snapshot.data)
+                    ],
+                  );
+                else if (snapshot.hasData && snapshot.data.status != 0)
+                  return new SimpleDialog(
+                    children: <Widget>[
+                      _getCar(context, snapshot.data),
+                      SimpleDialogOption(
+                        onPressed: () { Navigator.pop(context, true); },
+                        child: const Text('Denunciar'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () { Navigator.pop(context, false); },
+                        child: const Text('Cancelar'),
+                      ),
+                    ],
+                  );
+                else
+                  return new SimpleDialog(
+                    children: <Widget>[Text('Placa inválida: ${plate}')],
+                  );
+            }
+          },
         );
       },
     );
+
+    if (report) {
+      print("Submit report");
+    }
   }
 
   Widget _getCar(BuildContext context, Car carStatus) {
