@@ -40,28 +40,32 @@ class _MyAppState extends State<MyApp> {
           body: new TabBarView(children: [
             Column(
               children: <Widget>[
-              Expanded(
-                child: StreamBuilder(
-                  stream: Firestore.instance.collection("sightings").snapshots(),
-                  builder: (context, snapshot) {
-                    switch(snapshot.connectionState){
-                      case ConnectionState.none:
-                      case ConnectionState.waiting:
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                        default:
-                          return ListView.builder(
-                            // reverse: true,
-                            itemCount: snapshot.data.documents.length,
-                            itemBuilder: (context, index) {
-                              return Denuncias(snapshot.data.documents[index].data);
-                            }
-                          );
-                    }
-                  }
-                  ),
-              ),
+                Expanded(
+                  child: StreamBuilder(
+                      stream: Firestore.instance
+                          .collection("sightings")
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                          case ConnectionState.waiting:
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          default:
+                            if (!snapshot.hasData)                          return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            return ListView.builder(
+                                // reverse: true,
+                                itemCount: snapshot.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  return Denuncias(
+                                      snapshot.data.documents[index].data);
+                                });
+                        }
+                      }),
+                ),
               ],
             ),
             _dados(context),
@@ -73,7 +77,6 @@ class _MyAppState extends State<MyApp> {
 }
 
 class Denuncias extends StatelessWidget {
-
   final Map<String, dynamic> data;
 
   Denuncias(this.data);
@@ -99,7 +102,21 @@ class Denuncias extends StatelessWidget {
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5.0),
-                    child: Text("teste"),
+                    child: new FutureBuilder(
+                      future: data["car"].get(),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return new Text('waiting');
+                          default:
+                            if(snapshot.hasData) {
+                              return Text(snapshot.data['plate']);
+                            } else {
+                              return new Text('invalido');
+                            }
+                        }
+                      }
+                    ),
                   ),
                 ],
               ),
@@ -108,8 +125,6 @@ class Denuncias extends StatelessWidget {
         ));
   }
 }
-
-
 
 Widget _dados(BuildContext context) {
   return new StreamBuilder(
