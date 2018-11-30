@@ -193,6 +193,7 @@ public class FlutterMobileVisionPlugin implements MethodCallHandler,
                 if (intent != null) {
                     ArrayList<MyTextBlock> blocks = intent
                             .getParcelableArrayListExtra(OcrCaptureActivity.OBJECT);
+                    byte[] image = intent.getByteArrayExtra(OcrCaptureActivity.IMAGE);
                     if (!blocks.isEmpty()) {
                         List<Map<String, Object>> list = new ArrayList<>();
                         for (MyTextBlock block : blocks) {
