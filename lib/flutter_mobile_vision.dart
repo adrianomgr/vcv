@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 class FlutterMobileVision {
@@ -30,9 +30,9 @@ class FlutterMobileVision {
     };
 
     List list = await _channel.invokeMethod('read', arguments);
-    var capture = Capture(
-      textList: list.getRange(0, list.length-1).map((map) => OcrText.fromMap(map)).toList(),
-      image: list.last,
+    var capture = await Capture(
+      textList: await list.getRange(0, list.length-1).map((map) => OcrText.fromMap(map)).toList(),
+      image: await list.last,
     );
 
     return capture;
@@ -44,12 +44,8 @@ class Capture {
   List<OcrText> textList;
   Uint8List image;
 
-  Capture() {
-    this.textList = [];
-    this.image = null;
-  }
-
   Capture({this.textList, this.image});
+
 }
 
 

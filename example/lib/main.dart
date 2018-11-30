@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobile_vision/flutter_mobile_vision.dart';
@@ -177,6 +178,7 @@ class _MyAppState extends State<MyApp> {
   ///
   Future<Null> _read() async {
     Capture capture = Capture();
+    List<OcrText> texts = [];
     try {
       capture = await FlutterMobileVision.read(
         flash: _torchOcr,
@@ -187,7 +189,7 @@ class _MyAppState extends State<MyApp> {
         fps: 2.0,
       );
       texts = await capture.textList;
-      image = await capture.image;
+      _image = await capture.image;
     } on Exception {
       texts.add(new OcrText(txt.text));
     }
@@ -197,8 +199,8 @@ class _MyAppState extends State<MyApp> {
     // texts.first.modelo = "Punto";
     if (!mounted) return;
     setState(() {
-      _textsOcr = texts;
-      txt.text = texts.first.value;
+      _textsOcr = capture.textList;
+      txt.text = capture.textList.last.value;
     });
   }
 }
