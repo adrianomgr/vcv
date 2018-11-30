@@ -91,10 +91,10 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
 
         @Override
         public void onPictureTaken(byte[] data) {
-            Intent data = new Intent();
-            data.putExtra(OBJECT, capture.textList);
-            data.putExtra(IMAGE, data);
-            this.capture.setResult(CommonStatusCodes.SUCCESS, data);
+            Intent allData = new Intent();
+            allData.putExtra(OBJECT, capture.textList);
+            allData.putExtra(IMAGE, data);
+            this.capture.setResult(CommonStatusCodes.SUCCESS, allData);
             this.capture.finish();
         }
     }
