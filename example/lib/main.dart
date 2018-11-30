@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
             title: new Text('Vigilância Cidadã de Veículos'),
           ),
           body: new TabBarView(children: [
-            new OcrScreen(sinespClient),
+            new OcrScreen(sinespClient: sinespClient),
             _comunicarFurto(context),
             _dados(context),
           ]),
@@ -114,7 +114,7 @@ class _MyAppState extends State<MyApp> {
 class OcrScreen extends StatefulWidget {
   final Sinesp sinespClient;
 
-  const OcrScreen({Key key, this.sinespClient}): super(key: key);
+  const OcrScreen({Key key, this.sinespClient}) : super(key: key);
 
   @override
   _OcrScreenState createState() => _OcrScreenState();
@@ -191,28 +191,43 @@ class _OcrScreenState extends State<OcrScreen> {
     );
   }
 
-  Future _plateStatus() {
+  Future<bool> _plateStatus() {
     return showDialog(
       context: context,
       builder: (context) {
         String plate = myController.text;
-        return AlertDialog(
-          content: new FutureBuilder<Car>(
-            future: sinespClient.search(plate),
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return new Text('Loading....');
-                default:
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  else if (snapshot.hasData)
-                    return _getCar(context, snapshot.data);
-                  else
-                    return new Text('Placa inválida: ${plate}');
-              }
-            },
-          ),
+        return SimpleDialog(
+          children: <Widget>[
+            new FutureBuilder<Car>(
+              future: widget.sinespClient.search(plate),
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return new Text('Loading....');
+                  default:
+                    if (snapshot.hasError)
+                      return new Text('Error: ${snapshot.error}');
+                    else if (snapshot.hasData)
+                      return _getCar(context, snapshot.data);
+                    else
+                      return new Text('Placa inválida: ${plate}');
+                }
+              },
+            ),
+             if (snapshot.data.status != 0)
+             return new SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Denunciar'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancelar'),
+            ),
+          ],
         );
       },
     );
@@ -262,8 +277,6 @@ class _OcrScreenState extends State<OcrScreen> {
     });
   }
 }
-
-
 
 class Sinesp {
   final String URL =
