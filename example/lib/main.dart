@@ -38,14 +38,9 @@ class _MyAppState extends State<MyApp> {
   Location _location = new Location();
   bool _permission = false;
   String error;
-  Image image1;
 
   bool currentWidget = true;
 
- 
-  List<OcrText> _textsOcr = [];
-  Uint8List _image = null;
-  final myController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -106,7 +101,7 @@ class _MyAppState extends State<MyApp> {
             title: new Text('Vigilância Cidadã de Veículos'),
           ),
           body: new TabBarView(children: [
-            OcrScreen(sinespClient),
+            new OcrScreen(sinespClient),
             _comunicarFurto(context),
             _dados(context),
           ]),
@@ -115,21 +110,22 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
 class OcrScreen extends StatefulWidget {
   final Sinesp sinespClient;
 
   const OcrScreen({Key key, this.sinespClient}): super(key: key);
 
   @override
-  _OcrScreenState createState() => new _OcrScreenState();
+  _OcrScreenState createState() => _OcrScreenState();
 }
- int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
+
+class _OcrScreenState extends State<OcrScreen> {
+  int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
   bool _autoFocusOcr = true;
   bool _torchOcr = false;
   bool _multipleOcr = false;
   bool _showTextOcr = true;
-
-class _OcrScreenState extends State<OcrScreen> {
   List<OcrText> _textsOcr = [];
   Uint8List _image = null;
   final myController = TextEditingController();
