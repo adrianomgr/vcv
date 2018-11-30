@@ -24,7 +24,7 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
 
     @SuppressLint("InlinedApi")
     protected void createCameraSource() throws MobileVisionException {
-        this.picture = null;
+        this.textList = null;
         this.picCallback = new PictureDone(this);
 
         Context context = getApplicationContext();
