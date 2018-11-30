@@ -197,7 +197,7 @@ class _OcrScreenState extends State<OcrScreen> {
       builder: (context) {
         String plate = myController.text;
         return new FutureBuilder<Car>(
-          future: widget.sinespClient.search(plate),
+          future: widget.carData.search(plate),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
@@ -309,13 +309,17 @@ class CarDatabase {
       .where('plate', isEqualTo: stdPlate)
       .getDocuments();
       
-    var result = await fireData.documents.first;
-    if (result != null && result.exists) {
-      print(result.data['plate']);
-    } else {
-      // todo: add plate to firebase
-      return this.sinespClient.search(plate);
+    var all_results = await fireData.documents;
+    if (all_results.documents.isNotEmpty) {
+      var result = all_results.first;
+      if (result != null && result.exists) {
+        print(result.data['plate']);
+        return new Car.fromFireMap(result.data);
+      }
     }
+    
+    // todo: add plate to firebase
+    return this.sinespClient.search(plate);
   }
 }
 
@@ -455,6 +459,19 @@ class Car {
       this.plate,
       this.statusCode,
       this.status});
+
+  Car.fromFireMap(Map<String, dynamic> map) {
+    this.city = map['city'];
+    this.state = map['state'];
+    this.chassis = map['chassis'];
+    this.brand = map['brand'];
+    this.model = map['model'];
+    this.year = map['year'];
+    this.color = map['color'];
+    this.plate = map['plate'];
+    this.statusCode = map['statusCode'];
+    this.status = map['status'];
+  }
 }
 
 ///
