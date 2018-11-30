@@ -29,6 +29,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final CarDatabase carData = CarDatabase();
+  final otherController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the Widget is disposed
+    otherController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +61,7 @@ class _MyAppState extends State<MyApp> {
           ),
           body: new TabBarView(children: [
             new OcrScreen(carData: carData),
-            _comunicarFurto(context),
+            _comunicarFurto(context, otherController, carData ),
           ]),
         ),
       ),
@@ -89,7 +97,6 @@ class _OcrScreenState extends State<OcrScreen> {
   List<OcrText> _textsOcr = [];
   Uint8List _image = null;
   final myController = TextEditingController();
-  final otherController = TextEditingController();
 
   @override
   void initState() {
@@ -132,7 +139,6 @@ class _OcrScreenState extends State<OcrScreen> {
   void dispose() {
     // Clean up the controller when the Widget is disposed
     myController.dispose();
-    otherController.dispose();
     super.dispose();
   }
 
@@ -518,7 +524,7 @@ class Car {
 ///
 /// Comunicar Furto
 ///
-Widget _comunicarFurto(BuildContext context) {
+Widget _comunicarFurto(BuildContext context, TextEditingController otherController, CarDatabase carData ) {
   List<Widget> items = [];
 
   items.add(
@@ -540,13 +546,15 @@ Widget _comunicarFurto(BuildContext context) {
               height: 60.0,
               child: RaisedButton(
                 onPressed: () {
-                  String plate = myController.text;
+                  String plate = otherController.text;
                   if (carData.isValidPlate(plate)) {
                     String stdPlate = carData.getStdPlate(plate);
-                    var car = await carData.search(stdPlate);
-                    car.status = "Furto/roubo";
-                    car.statusCode = 3;
-                    Firestore.instance.collection('cars').add(car.toMap());
+                    carData.search(stdPlate).then((car) {
+                     car.status = "Furto/roubo";
+                     car.statusCode = 3;
+                      Firestore.instance.collection('cars').add(car.toMap());
+                    });
+                    otherController.text = "";
                   } else {
                     showDialog (
                       context: context,
