@@ -241,10 +241,10 @@ class _OcrScreenState extends State<OcrScreen> {
     if (report != null) {
       print("Submit report");
       Map<String, dynamic> reportMap;
-      reportMap.add("car", report.docID);
-      reportMap.add("location", _currentLocation);
-      reportMap.add("dateTime", new DateTime.now());
-      reportMap.add("image", "");
+      reportMap["car"] = report.docID;
+      reportMap["location"] = _currentLocation;
+      reportMap["dateTime"] = new DateTime.now();
+      reportMap["image"] = "";
       Firestore.instance.collection('sightings').add(reportMap);
     }
   }
