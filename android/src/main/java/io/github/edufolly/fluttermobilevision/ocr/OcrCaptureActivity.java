@@ -19,7 +19,7 @@ import io.github.edufolly.fluttermobilevision.util.MobileVisionException;
 
 public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic> {
 
-    protected byte[] picture;
+    protected ArrayList<MyTextBlock> textList;
     protected PictureDone picCallback;
 
     @SuppressLint("InlinedApi")
@@ -74,20 +74,8 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
         }
 
         if (!list.isEmpty()) {
+            this.textList = list;
             cameraSource.takePicture(null, this.picCallback);
-            while (this.picture == null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            Intent data = new Intent();
-            data.putExtra(OBJECT, list);
-            data.putExtra(IMAGE, this.picture);
-            setResult(CommonStatusCodes.SUCCESS, data);
-            finish();
             return true;
         }
 
@@ -103,7 +91,11 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
 
         @Override
         public void onPictureTaken(byte[] data) {
-            this.capture.picture = data;
+            Intent data = new Intent();
+            data.putExtra(OBJECT, capture.textList);
+            data.putExtra(IMAGE, data);
+            this.capture.setResult(CommonStatusCodes.SUCCESS, data);
+            this.capture.finish();
         }
     }
 }
