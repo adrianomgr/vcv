@@ -94,7 +94,7 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
         return false;
     }
 
-    private class PictureDone implements Camera.PictureCallback {
+    private class PictureDone implements CameraSource.PictureCallback {
         protected OcrCaptureActivity capture;
 
         PictureDone(OcrCaptureActivity capture) {
@@ -102,7 +102,7 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
         }
 
         @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
+        public void onPictureTaken(byte[] data) {
             this.capture.picture = data;
         }
     }

@@ -36,6 +36,7 @@ public abstract class AbstractCaptureActivity<T extends GraphicOverlay.Graphic>
     public static final String FPS = "FPS";
 
     public static final String OBJECT = "Object";
+    public static final String IMAGE = "Image";
     public static final String ERROR = "Error";
 
     protected CameraSource cameraSource;
