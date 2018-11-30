@@ -135,20 +135,33 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
-    items.addAll(
-      ListTile.divideTiles(
-        context: context,
-        tiles: _textsOcr
-            .map(
-              (ocrText) => new OcrTextWidget(ocrText),
-            )
-            .toList(),
+    // items.addAll(
+    //   ListTile.divideTiles(
+    //     context: context,
+    //     tiles: _textsOcr
+    //         .map(
+    //           (ocrText) => new OcrTextWidget(ocrText),
+    //         )
+    //         .toList(),
+    //   ),
+    // );
+    // items.add(new Center(
+    //     child: new Text(_currentLocation != null
+    //         ? 'Current location: $_currentLocation\n'
+    //         : 'Error: $error\n')));
+
+    items.add(new Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Container(
+        height: 60.0,
+        child: RaisedButton(
+          onPressed: () {},
+          child: Text("CONSULTAR",
+              style: TextStyle(color: Colors.white, fontSize: 25.0)),
+        ),
       ),
+    ),
     );
-    items.add(new Center(
-        child: new Text(_currentLocation != null
-            ? 'Current location: $_currentLocation\n'
-            : 'Error: $error\n')));
 
     return new ListView(
       padding: const EdgeInsets.only(
@@ -175,10 +188,10 @@ class _MyAppState extends State<MyApp> {
     } on Exception {
       texts.add(new OcrText(txt.text));
     }
-    texts.first.latitude = _currentLocation["latitude"];
-    texts.first.longitude = _currentLocation["longitude"];
-    texts.first.isroubado = 1;
-    texts.first.modelo = "Punto";
+    // texts.first.latitude = _currentLocation["latitude"];
+    // texts.first.longitude = _currentLocation["longitude"];
+    // texts.first.isroubado = 1;
+    // texts.first.modelo = "Punto";
     if (!mounted) return;
     setState(() {
       _textsOcr = texts;
@@ -190,88 +203,87 @@ class _MyAppState extends State<MyApp> {
 ///
 /// OcrTextWidget
 ///
-class OcrTextWidget extends StatelessWidget {
-  final OcrText ocrText;
+// class OcrTextWidget extends StatelessWidget {
+//   final OcrText ocrText;
 
-  OcrTextWidget(this.ocrText);
+//   OcrTextWidget(this.ocrText);
 
-  @override
-  Widget build(BuildContext context) {
-    return new Padding(
-      padding: EdgeInsets.all(20.0),
-      child: Container(
-        height: 60.0,
-        child: RaisedButton(
-          onPressed: () => Navigator.of(context).push(
-                new MaterialPageRoute(
-                  builder: (context) => new Detalhes(ocrText),
-                ),
-              ),
-          child: Text("CONSULTAR",
-              style: TextStyle(color: Colors.white, fontSize: 25.0)),
-        ),
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return new Container(width:0.0, height: 0.0,);
+//     // return new Padding(
+//     //   padding: EdgeInsets.all(20.0),
+//     //   child: Container(
+//     //     height: 60.0,
+//     //     child: RaisedButton(
+//     //       onPressed: () => Navigator.of(context).push(
+//     //             new MaterialPageRoute(
+//     //               builder: (context) => new Detalhes(ocrText),
+//     //             ),
+//     //           ),
+//     //       child: Text("CONSULTAR",
+//     //           style: TextStyle(color: Colors.white, fontSize: 25.0)),
+//     //     ),
+//     //   ),
+//     // );
+//   }
+
+// }
 
   ///
   /// Comunicar Furto
   ///
-}
+Widget _comunicarFurto(BuildContext context) {
+  List<Widget> items = [];
 
-  Widget _comunicarFurto(BuildContext context) {
-    List<Widget> items = [];
-
-    items.add(
-      new SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TextField(
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(labelText: "Placa do Veículo"),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 25.0, color: Colors.black),
-            ),
-            new Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Container(
-                height: 60.0,
-                child: RaisedButton(
-                  onPressed: () {},
-                  child: Text("Informar Furto",
-                      style: TextStyle(color: Colors.white, fontSize: 25.0)),
-                ),
+  items.add(
+    new SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          TextField(
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(labelText: "Placa do Veículo"),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 25.0, color: Colors.black),
+          ),
+          new Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Container(
+              height: 60.0,
+              child: RaisedButton(
+                onPressed: () {},
+                child: Text("Informar Furto",
+                    style: TextStyle(color: Colors.white, fontSize: 25.0)),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
 
-    return new ListView(
-      padding: const EdgeInsets.only(
-        top: 12.0,
-      ),
-      children: items,
-    );
-  }
+  return new ListView(
+    padding: const EdgeInsets.only(
+      top: 12.0,
+    ),
+    children: items,
+  );
+}
 
-  Widget _dados(BuildContext context) {
-    return new StreamBuilder (
+Widget _dados(BuildContext context) {
+  return new StreamBuilder(
       stream: Firestore.instance.collection('cars').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Text("Carregando...");
+        if (!snapshot.hasData) return const Text('Loading...');
         return new ListView.builder(
-          itemCount: snapshot.data.documents.lenght,
-          padding: const EdgeInsets.only(top:10.0),
-          itemExtent:25.0,
-          itemBuilder: (context, index){
-            DocumentSnapshot ds = snapshot.data.documents[index];
-            return new Text(" ${ds['plate']}");
-          },
-        );
-      }
-    );
-  }
+            itemCount: snapshot.data.documents.length,
+            padding: const EdgeInsets.only(top: 10.0),
+            itemExtent: 25.0,
+            itemBuilder: (context, index) {
+              DocumentSnapshot ds = snapshot.data.documents[index];
+              return new Text(" ${ds['plate']} ${ds['model']}");
+            });
+      });
+}

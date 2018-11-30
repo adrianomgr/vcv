@@ -23,7 +23,7 @@ class OcrGraphicTracker extends Tracker<TextBlock> {
 
     @Override
     public void onUpdate(Detector.Detections<TextBlock> detections, TextBlock textBlock) {
-        String platePattern = "[a-zA-Z]{3}(-| )+\\d{4}";
+        String platePattern = "[a-zA-Z]{3}(-| )*\\d{4}";
         if (textBlock.getValue().matches(platePattern)) {
             overlay.add(graphic);
             graphic.updateItem(textBlock);
