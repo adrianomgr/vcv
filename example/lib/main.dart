@@ -34,6 +34,7 @@ class _MyAppState extends State<MyApp> {
   bool _multipleOcr = false;
   bool _showTextOcr = true;
   List<OcrText> _textsOcr = [];
+  Uint8List _image = null;
   var txt = new TextEditingController();
   @override
   void initState() {
@@ -175,9 +176,9 @@ class _MyAppState extends State<MyApp> {
   /// OCR Method
   ///
   Future<Null> _read() async {
-    List<OcrText> texts = [];
+    Capture capture = Capture();
     try {
-      texts = await FlutterMobileVision.read(
+      capture = await FlutterMobileVision.read(
         flash: _torchOcr,
         autoFocus: _autoFocusOcr,
         multiple: _multipleOcr,
@@ -185,6 +186,8 @@ class _MyAppState extends State<MyApp> {
         camera: _cameraOcr,
         fps: 2.0,
       );
+      texts = await capture.textList;
+      image = await capture.image;
     } on Exception {
       texts.add(new OcrText(txt.text));
     }

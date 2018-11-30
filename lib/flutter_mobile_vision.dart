@@ -12,7 +12,7 @@ class FlutterMobileVision {
   ///
   ///
   ///
-  static Future<List<OcrText>> read({
+  static Future<Capture> read({
     bool flash: false,
     bool autoFocus: true,
     bool multiple: false,
@@ -29,12 +29,27 @@ class FlutterMobileVision {
       'fps': fps,
     };
 
-    final List list = await _channel.invokeMethod('read', arguments);
-    var image = list.removeLast();
+    List list = await _channel.invokeMethod('read', arguments);
+    var capture = Capture(
+      textList: list.getRange(0, list.length-1).map((map) => OcrText.fromMap(map)).toList(),
+      image: list.last,
+    );
 
-    return list.map((map) => OcrText.fromMap(map)).toList();
+    return capture;
   }
 
+}
+
+class Capture {
+  List<OcrText> textList;
+  Uint8List image;
+
+  Capture() {
+    this.textList = [];
+    this.image = null;
+  }
+
+  Capture({this.textList, this.image});
 }
 
 
