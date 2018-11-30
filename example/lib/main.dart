@@ -177,8 +177,9 @@ class _MyAppState extends State<MyApp> {
   /// OCR Method
   ///
   Future<Null> _read() async {
-    Capture capture = Capture();
+    Capture capture;
     List<OcrText> texts = [];
+    Uint8List img = null;
     try {
       capture = await FlutterMobileVision.read(
         flash: _torchOcr,
@@ -189,7 +190,7 @@ class _MyAppState extends State<MyApp> {
         fps: 2.0,
       );
       texts = await capture.textList;
-      _image = await capture.image;
+      img = await capture.image;
     } on Exception {
       texts.add(new OcrText(txt.text));
     }
@@ -199,8 +200,9 @@ class _MyAppState extends State<MyApp> {
     // texts.first.modelo = "Punto";
     if (!mounted) return;
     setState(() {
-      _textsOcr = capture.textList;
-      txt.text = capture.textList.last.value;
+      _textsOcr = texts;
+      _image = img;
+      txt.text = texts.first.value;
     });
   }
 }
