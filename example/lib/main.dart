@@ -42,11 +42,7 @@ class _MyAppState extends State<MyApp> {
 
   bool currentWidget = true;
 
-  int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
-  bool _autoFocusOcr = true;
-  bool _torchOcr = false;
-  bool _multipleOcr = false;
-  bool _showTextOcr = true;
+ 
   List<OcrText> _textsOcr = [];
   Uint8List _image = null;
   final myController = TextEditingController();
@@ -110,7 +106,7 @@ class _MyAppState extends State<MyApp> {
             title: new Text('Vigilância Cidadã de Veículos'),
           ),
           body: new TabBarView(children: [
-            _getOcrScreen(context),
+            OcrScreen(sinespClient),
             _comunicarFurto(context),
             _dados(context),
           ]),
@@ -118,33 +114,25 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+class OcrScreen extends StatefulWidget {
+  final Sinesp sinespClient;
 
-  Future _plateStatus() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        String plate = myController.text;
-        return AlertDialog(
-          content: new FutureBuilder<Car>(
-            future: sinespClient.search(plate),
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return new Text('Loading....');
-                default:
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  else if (snapshot.hasData)
-                    return _getCar(context, snapshot.data);
-                  else
-                    return new Text('Placa inválida: ${plate}');
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
+  const OcrScreen({Key key, this.sinespClient}): super(key: key);
+
+  @override
+  _OcrScreenState createState() => new _OcrScreenState();
+}
+ int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
+  bool _autoFocusOcr = true;
+  bool _torchOcr = false;
+  bool _multipleOcr = false;
+  bool _showTextOcr = true;
+
+class _OcrScreenState extends State<OcrScreen> {
+  List<OcrText> _textsOcr = [];
+  Uint8List _image = null;
+  final myController = TextEditingController();
 
   @override
   void dispose() {
@@ -153,25 +141,8 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  Widget _getCar(BuildContext context, Car carStatus) {
-    List<Widget> items = [];
-
-    items.add(Text('Status: ${carStatus.status}'));
-    items.add(Text(carStatus.plate));
-    items.add(Text(carStatus.brand));
-    items.add(Text(carStatus.model));
-    items.add(Text(carStatus.color));
-
-    return new Column(
-      mainAxisSize: MainAxisSize.min,
-      children: items,
-    );
-  }
-
-  ///
-  /// OCR Screen
-  ///
-  Widget _getOcrScreen(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     List<Widget> items = [];
 
     items.add(
@@ -211,15 +182,57 @@ class _MyAppState extends State<MyApp> {
 
     if (_image != null) items.add(new Image.memory(_image, height: 99.9));
 
-    items.add(new Center(
-        child: new Text(_currentLocation != null
-            ? 'Current location: $_currentLocation\n'
-            : 'Error: $error\n')));
+    // items.add(new Center(
+    //     child: new Text(_currentLocation != null
+    //         ? 'Current location: $_currentLocation\n'
+    //         : 'Error: $error\n')));
 
     return new ListView(
       padding: const EdgeInsets.only(
         top: 12.0,
       ),
+      children: items,
+    );
+  }
+
+  Future _plateStatus() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        String plate = myController.text;
+        return AlertDialog(
+          content: new FutureBuilder<Car>(
+            future: sinespClient.search(plate),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return new Text('Loading....');
+                default:
+                  if (snapshot.hasError)
+                    return new Text('Error: ${snapshot.error}');
+                  else if (snapshot.hasData)
+                    return _getCar(context, snapshot.data);
+                  else
+                    return new Text('Placa inválida: ${plate}');
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _getCar(BuildContext context, Car carStatus) {
+    List<Widget> items = [];
+
+    items.add(Text('Status: ${carStatus.status}'));
+    items.add(Text(carStatus.plate));
+    items.add(Text(carStatus.brand));
+    items.add(Text(carStatus.model));
+    items.add(Text(carStatus.color));
+
+    return new Column(
+      mainAxisSize: MainAxisSize.min,
       children: items,
     );
   }
@@ -253,6 +266,8 @@ class _MyAppState extends State<MyApp> {
     });
   }
 }
+
+
 
 class Sinesp {
   final String URL =
