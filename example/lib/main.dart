@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       home: new DefaultTabController(
-        length: 3,
+        length: 2,
         child: new Scaffold(
           appBar: new AppBar(
             bottom: new TabBar(
@@ -47,7 +47,6 @@ class _MyAppState extends State<MyApp> {
               tabs: [
                 new Tab(text: 'Consulta da Placa'),
                 new Tab(text: 'Comunicar Furto'),
-                new Tab(text: 'teste'),
               ],
             ),
             title: new Text('Vigilância Cidadã de Veículos'),
@@ -55,7 +54,6 @@ class _MyAppState extends State<MyApp> {
           body: new TabBarView(children: [
             new OcrScreen(carData: carData),
             _comunicarFurto(context),
-            _dados(context),
           ]),
         ),
       ),
@@ -91,6 +89,7 @@ class _OcrScreenState extends State<OcrScreen> {
   List<OcrText> _textsOcr = [];
   Uint8List _image = null;
   final myController = TextEditingController();
+  final otherController = TextEditingController();
 
   @override
   void initState() {
@@ -133,6 +132,7 @@ class _OcrScreenState extends State<OcrScreen> {
   void dispose() {
     // Clean up the controller when the Widget is disposed
     myController.dispose();
+    otherController.dispose();
     super.dispose();
   }
 
@@ -325,16 +325,23 @@ class CarDatabase {
         return new Car.fromFire(result.documentID, result.data);
       }
     }
-    print('4');
 
     var car = await this.sinespClient.search(stdPlate);
-    print('5');
     var carDoc =
         await Firestore.instance.collection('cars').add(car.toMap());
-    print('6');
     car.docID = carDoc.documentID;
-    print('7');
     return car;
+  }
+
+  String getStdPlate(String plate) {
+    var lhs = RegExp(r"^[a-zA-Z]{3}").stringMatch(plate);
+    var rhs = RegExp(r"\d{4}$").stringMatch(plate);
+    return '${lhs.toUpperCase()}${rhs}';
+  }
+
+  bool isValidPlate(String plate) {
+    RegExp platePattern = new RegExp(r"^[a-zA-Z]{3}(-| )*\d{4}$");
+    return platePattern.hasMatch(plate);
   }
 }
 
@@ -520,6 +527,7 @@ Widget _comunicarFurto(BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           TextField(
+            controller: otherController,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(labelText: "Placa do Veículo"),
             textAlign: TextAlign.center,
@@ -530,7 +538,25 @@ Widget _comunicarFurto(BuildContext context) {
             child: Container(
               height: 60.0,
               child: RaisedButton(
-                onPressed: () {},
+                onPressed: () {
+                  String plate = myController.text;
+                  if (carData.isValidPlate(plate)) {
+                    String stdPlate = carData.getStdPlate(plate);
+                    var car = await carData.search(stdPlate);
+                    car.status = "Furto/roubo";
+                    car.statusCode = 3;
+                    Firestore.instance.collection('cars').add(car.toMap());
+                  } else {
+                    showDialog (
+                      context: context,
+                      builder: (context) {
+                        return new AlertDialog(
+                          content: Text("Placa inválida ${plate}"),
+                        );
+                      }
+                    );
+                  }
+                },
                 child: Text("Informar Furto",
                     style: TextStyle(color: Colors.white, fontSize: 25.0)),
               ),
