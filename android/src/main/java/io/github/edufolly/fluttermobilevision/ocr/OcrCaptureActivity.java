@@ -19,11 +19,14 @@ import io.github.edufolly.fluttermobilevision.util.MobileVisionException;
 
 public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic> {
 
-    byte[] picture;
+    protected byte[] picture;
+    protected PictureDone picCallback;
 
     @SuppressLint("InlinedApi")
     protected void createCameraSource() throws MobileVisionException {
         this.picture = null;
+        this.picCallback = new PictureDone(this);
+
         Context context = getApplicationContext();
 
         TextRecognizer textRecognizer = new TextRecognizer.Builder(context)
@@ -71,7 +74,7 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
         }
 
         if (!list.isEmpty()) {
-            cameraSource.takePicture(null, new PictureDone());
+            cameraSource.takePicture(null, this.picCallback);
             while (this.picture == null) {
                 try {
                     Thread.sleep(100);
@@ -92,9 +95,15 @@ public final class OcrCaptureActivity extends AbstractCaptureActivity<OcrGraphic
     }
 
     private class PictureDone implements Camera.PictureCallback {
+        protected OcrCaptureActivity capture;
+
+        PictureDone(OcrCaptureActivity capture) {
+            this.capture = capture;
+        }
+
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            this.picture = data;
+            this.capture.picture = data;
         }
     }
 }
