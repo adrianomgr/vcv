@@ -208,13 +208,13 @@ class _OcrScreenState extends State<OcrScreen> {
                   return new SimpleDialog(
                     children: <Widget>[Text('Error: ${snapshot.error}')],
                   );
-                else if (snapshot.hasData && snapshot.data.status == 0)
+                else if (snapshot.hasData && snapshot.data.statusCode == 0)
                   return new SimpleDialog(
                     children: <Widget>[
                       _getCar(context, snapshot.data)
                     ],
                   );
-                else if (snapshot.hasData && snapshot.data.status != 0)
+                else if (snapshot.hasData && snapshot.data.statusCode != 0)
                   return new SimpleDialog(
                     children: <Widget>[
                       _getCar(context, snapshot.data),
@@ -315,7 +315,7 @@ class CarDatabase {
       .getDocuments();
       
     var all_results = await fireData.documents;
-    if (all_results.documents.isNotEmpty) {
+    if (all_results.isNotEmpty) {
       var result = all_results.first;
       if (result != null && result.exists) {
         print(result.data['plate']);
