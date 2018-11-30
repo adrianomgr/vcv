@@ -199,6 +199,11 @@ public class FlutterMobileVisionPlugin implements MethodCallHandler,
                         for (MyTextBlock block : blocks) {
                             list.add(block.getMap());
                         }
+
+                        Map imageMap = new HashMap<String, Object>();
+                        imageMap.put("Image", image);
+                        list.add(imageMap);
+                        
                         result.success(list);
                         return true;
                     }

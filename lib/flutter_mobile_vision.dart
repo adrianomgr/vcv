@@ -30,6 +30,7 @@ class FlutterMobileVision {
     };
 
     final List list = await _channel.invokeMethod('read', arguments);
+    var image = list.removeLast();
 
     return list.map((map) => OcrText.fromMap(map)).toList();
   }
