@@ -497,6 +497,7 @@ class Car {
     this.statusCode = map['statusCode'];
     this.status = map['status'];
   }
+  
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = new Map<String, dynamic>();
