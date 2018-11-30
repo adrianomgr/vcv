@@ -137,21 +137,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
-    // items.addAll(
-    //   ListTile.divideTiles(
-    //     context: context,
-    //     tiles: _textsOcr
-    //         .map(
-    //           (ocrText) => new OcrTextWidget(ocrText),
-    //         )
-    //         .toList(),
-    //   ),
-    // );
-    // items.add(new Center(
-    //     child: new Text(_currentLocation != null
-    //         ? 'Current location: $_currentLocation\n'
-    //         : 'Error: $error\n')));
-
     items.add(new Padding(
       padding: EdgeInsets.all(20.0),
       child: Container(
@@ -164,6 +149,8 @@ class _MyAppState extends State<MyApp> {
       ),
     ),
     );
+
+    if(_image != null) items.add(new Image.memory(_image, height: 99.9));
 
     return new ListView(
       padding: const EdgeInsets.only(
@@ -194,48 +181,15 @@ class _MyAppState extends State<MyApp> {
     } on Exception {
       texts.add(new OcrText(txt.text));
     }
-    // texts.first.latitude = _currentLocation["latitude"];
-    // texts.first.longitude = _currentLocation["longitude"];
-    // texts.first.isroubado = 1;
-    // texts.first.modelo = "Punto";
     if (!mounted) return;
     setState(() {
       _textsOcr = texts;
       _image = img;
-      txt.text = texts.first.value;
+      txt.text = texts.last.value;
     });
   }
 }
 
-///
-/// OcrTextWidget
-///
-// class OcrTextWidget extends StatelessWidget {
-//   final OcrText ocrText;
-
-//   OcrTextWidget(this.ocrText);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return new Container(width:0.0, height: 0.0,);
-//     // return new Padding(
-//     //   padding: EdgeInsets.all(20.0),
-//     //   child: Container(
-//     //     height: 60.0,
-//     //     child: RaisedButton(
-//     //       onPressed: () => Navigator.of(context).push(
-//     //             new MaterialPageRoute(
-//     //               builder: (context) => new Detalhes(ocrText),
-//     //             ),
-//     //           ),
-//     //       child: Text("CONSULTAR",
-//     //           style: TextStyle(color: Colors.white, fontSize: 25.0)),
-//     //     ),
-//     //   ),
-//     // );
-//   }
-
-// }
 
   ///
   /// Comunicar Furto

@@ -32,7 +32,7 @@ class FlutterMobileVision {
     List list = await _channel.invokeMethod('read', arguments);
     var capture = await Capture(
       textList: await list.getRange(0, list.length-1).map((map) => OcrText.fromMap(map)).toList(),
-      image: await list.last,
+      image: await list.last.values.first,
     );
 
     return capture;
@@ -59,10 +59,6 @@ class OcrText {
   final int bottom;
   final int left;
   final int right;
-  String modelo;
-  int isroubado;
-  double latitude;
-  double longitude;
 
   OcrText(
     this.value, {
@@ -71,10 +67,6 @@ class OcrText {
     this.bottom: -1,
     this.left: -1,
     this.right: -1,
-    this.modelo: 'Palio',
-    this.isroubado: 1,
-    this.latitude: 3.4,
-    this.longitude: 5.2,
     
   });
 
@@ -84,11 +76,7 @@ class OcrText {
         top = map['top'],
         bottom = map['bottom'],
         left = map['left'],
-        right = map['right'],
-        modelo = map['modelo'],
-        isroubado = map['isroubado'],
-        latitude = map['latitude'],
-        longitude = map['longitude'];
+        right = map['right'];
 
 
   Map<String, dynamic> toMap() {
@@ -99,10 +87,6 @@ class OcrText {
       'bottom': bottom,
       'left': left,
       'right': right,
-      'modelo': modelo,
-      'isroubado': isroubado,
-      'latitude': latitude,
-      'longitude': longitude,
     };
   }
 }
