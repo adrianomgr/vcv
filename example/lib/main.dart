@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final Sinesp sinespClient = Sinesp();
+  final CarDatabase carData = CarDatabase();
 
   Map<String, double> _startLocation;
   Map<String, double> _currentLocation;
@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
             title: new Text('Vigilância Cidadã de Veículos'),
           ),
           body: new TabBarView(children: [
-            new OcrScreen(sinespClient: sinespClient),
+            new OcrScreen(carData: carData),
             _comunicarFurto(context),
             _dados(context),
           ]),
@@ -112,9 +112,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 class OcrScreen extends StatefulWidget {
-  final Sinesp sinespClient;
+  final CarDatabase carData;
 
-  const OcrScreen({Key key, this.sinespClient}) : super(key: key);
+  const OcrScreen({Key key, this.carData}) : super(key: key);
 
   @override
   _OcrScreenState createState() => _OcrScreenState();
@@ -239,7 +239,7 @@ class _OcrScreenState extends State<OcrScreen> {
       },
     );
 
-    if (report) {
+    if (report != null && report) {
       print("Submit report");
     }
   }
@@ -289,6 +289,36 @@ class _OcrScreenState extends State<OcrScreen> {
   }
 }
 
+class CarDatabase {
+  Sinesp sinespClient;
+
+  CarDatabase() {
+    this.sinespClient = new Sinesp();
+  }
+
+  Future<Car> search(String plate) async {
+    RegExp platePattern = new RegExp(r"^[a-zA-Z]{3}(-| )*\d{4}$");
+    if (!platePattern.hasMatch(plate)) return null;
+
+    var lhs = RegExp(r"^[a-zA-Z]{3}").stringMatch(plate);
+    var rhs = RegExp(r"\d{4}$").stringMatch(plate);
+    var stdPlate = '${lhs.toUpperCase()}${rhs}';
+
+    var fireData = await Firestore.instance
+      .collection('cars')
+      .where('plate', isEqualTo: stdPlate)
+      .getDocuments();
+      
+    var result = await fireData.documents.first;
+    if (result != null && result.exists) {
+      print(result.data['plate']);
+    } else {
+      // todo: add plate to firebase
+      return this.sinespClient.search(plate);
+    }
+  }
+}
+
 class Sinesp {
   final String URL =
       'https://cidadao.sinesp.gov.br/sinesp-cidadao/mobile/consultar-placa/v4';
@@ -305,12 +335,6 @@ class Sinesp {
   }
 
   Future<Car> search(String plate) async {
-    RegExp platePattern = new RegExp(r"^[a-zA-Z]{3}(-| )*\d{4}$");
-    if (!platePattern.hasMatch(plate)) return null;
-
-    var lhs = RegExp(r"^[a-zA-Z]{3}").stringMatch(plate);
-    var rhs = RegExp(r"\d{4}$").stringMatch(plate);
-    var stdPlate = '${lhs.toUpperCase()}${rhs}';
     return parse(request(plate));
   }
 
