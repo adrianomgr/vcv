@@ -175,7 +175,7 @@ class _OcrScreenState extends State<OcrScreen> {
       ),
     );
 
-    if (_image != null) items.add(new Image.memory(_image, height: 99.9));
+    if (_image != null) items.add(new Image.memory(_image));
 
     // items.add(new Center(
     //     child: new Text(_currentLocation != null
@@ -210,20 +210,22 @@ class _OcrScreenState extends State<OcrScreen> {
                   );
                 else if (snapshot.hasData && snapshot.data.statusCode == 0)
                   return new SimpleDialog(
-                    children: <Widget>[
-                      _getCar(context, snapshot.data)
-                    ],
+                    children: <Widget>[_getCar(context, snapshot.data)],
                   );
                 else if (snapshot.hasData && snapshot.data.statusCode != 0)
                   return new SimpleDialog(
                     children: <Widget>[
                       _getCar(context, snapshot.data),
                       SimpleDialogOption(
-                        onPressed: () { Navigator.pop(context, snapshot.data); },
+                        onPressed: () {
+                          Navigator.pop(context, snapshot.data);
+                        },
                         child: const Text('Denunciar'),
                       ),
                       SimpleDialogOption(
-                        onPressed: () { Navigator.pop(context, null); },
+                        onPressed: () {
+                          Navigator.pop(context, null);
+                        },
                         child: const Text('Cancelar'),
                       ),
                     ],
@@ -310,11 +312,12 @@ class CarDatabase {
     var stdPlate = '${lhs.toUpperCase()}${rhs}';
 
     var fireData = await Firestore.instance
-      .collection('cars')
-      .where('plate', isEqualTo: stdPlate)
-      .getDocuments();
-      
-    var all_results = await fireData.documents;
+        .collection('cars')
+        .where('plate', isEqualTo: stdPlate)
+        .getDocuments();
+
+    var all_results = fireData.documents;
+
     if (all_results.isNotEmpty) {
       var result = all_results.first;
       if (result != null && result.exists) {
@@ -322,11 +325,15 @@ class CarDatabase {
         return new Car.fromFire(result.documentID, result.data);
       }
     }
+    print('4');
 
-    var car = await this.sinespClient.search(plate);
-    var carDoc = await Firestore.instance.collection('cars')
-      .add(await car.toMap());
-    car.docID = await carDoc.documentID;
+    var car = await this.sinespClient.search(stdPlate);
+    print('5');
+    var carDoc =
+        await Firestore.instance.collection('cars').add(car.toMap());
+    print('6');
+    car.docID = carDoc.documentID;
+    print('7');
     return car;
   }
 }
@@ -485,7 +492,7 @@ class Car {
   }
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map;
+    Map<String, dynamic> map = new Map<String, dynamic>();
     map['city'] = this.city;
     map['state'] = this.state;
     map['chassis'] = this.chassis;
