@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
                 Expanded(
                   child: StreamBuilder(
                       stream: Firestore.instance
-                          .collection("sightings")
+                          .collection("denuncias")
                           .snapshots(),
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
@@ -53,7 +53,8 @@ class _MyAppState extends State<MyApp> {
                               child: CircularProgressIndicator(),
                             );
                           default:
-                            if (!snapshot.hasData)                          return Center(
+                            if (!snapshot.hasData)
+                              return Center(
                                 child: CircularProgressIndicator(),
                               );
                             return ListView.builder(
@@ -102,21 +103,13 @@ class Denuncias extends StatelessWidget {
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5.0),
-                    child: new FutureBuilder(
-                      future: data["car"].get(),
-                      builder: (context, snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                            return new Text('waiting');
-                          default:
-                            if(snapshot.hasData) {
-                              return Text(snapshot.data['plate']);
-                            } else {
-                              return new Text('invalido');
-                            }
-                        }
-                      }
-                    ),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('PLACA: ' + data["placa"]),
+                          Text('LATITUDE: ' + data["latitude"]),
+                          Text('LONGITUDE: ' + data["longitude"]),
+                        ]),
                   ),
                 ],
               ),
@@ -134,10 +127,23 @@ Widget _dados(BuildContext context) {
         return new ListView.builder(
             itemCount: snapshot.data.documents.length,
             padding: const EdgeInsets.only(top: 10.0),
-            itemExtent: 25.0,
+            // itemExtent: 25.0,
             itemBuilder: (context, index) {
               DocumentSnapshot ds = snapshot.data.documents[index];
-              return new Text(" ${ds['plate']} ${ds['model']}");
+              return new Container(
+                margin: const EdgeInsets.only(top: 5.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text("PLACA: ${ds['plate']}"),
+                      Text("MODELO: ${ds['model']}"),
+                      Text("CIDADE: ${ds['city']}"),
+                      Text("ANO: ${ds['year']}"),
+                      Divider(
+                        height: 5.0,
+                      )
+                    ]),
+              );
             });
       });
 }
